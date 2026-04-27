@@ -5,18 +5,26 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
+  MutationFunction,
   QueryFunction,
   QueryKey,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
 
-import type { HealthStatus } from "./api.schemas";
+import type {
+  ErrorResponse,
+  GenerateVoiceBody,
+  HealthStatus,
+  Voice,
+} from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
-import type { ErrorType } from "../custom-fetch";
+import type { ErrorType, BodyType } from "../custom-fetch";
 
 type AwaitedInput<T> = PromiseLike<T> | T;
 
@@ -99,3 +107,164 @@ export function useHealthCheck<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * Returns the list of available ElevenLabs voices the app supports.
+ * @summary List available voices
+ */
+export const getListVoicesUrl = () => {
+  return `/api/voices`;
+};
+
+export const listVoices = async (options?: RequestInit): Promise<Voice[]> => {
+  return customFetch<Voice[]>(getListVoicesUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListVoicesQueryKey = () => {
+  return [`/api/voices`] as const;
+};
+
+export const getListVoicesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listVoices>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listVoices>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListVoicesQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listVoices>>> = ({
+    signal,
+  }) => listVoices({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listVoices>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListVoicesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listVoices>>
+>;
+export type ListVoicesQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List available voices
+ */
+
+export function useListVoices<
+  TData = Awaited<ReturnType<typeof listVoices>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listVoices>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListVoicesQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Sends text to ElevenLabs and returns an MP3 audio buffer.
+ * @summary Generate voice audio from text
+ */
+export const getGenerateVoiceUrl = () => {
+  return `/api/generate-voice`;
+};
+
+export const generateVoice = async (
+  generateVoiceBody: GenerateVoiceBody,
+  options?: RequestInit,
+): Promise<Blob> => {
+  return customFetch<Blob>(getGenerateVoiceUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(generateVoiceBody),
+  });
+};
+
+export const getGenerateVoiceMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof generateVoice>>,
+    TError,
+    { data: BodyType<GenerateVoiceBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof generateVoice>>,
+  TError,
+  { data: BodyType<GenerateVoiceBody> },
+  TContext
+> => {
+  const mutationKey = ["generateVoice"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof generateVoice>>,
+    { data: BodyType<GenerateVoiceBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return generateVoice(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type GenerateVoiceMutationResult = NonNullable<
+  Awaited<ReturnType<typeof generateVoice>>
+>;
+export type GenerateVoiceMutationBody = BodyType<GenerateVoiceBody>;
+export type GenerateVoiceMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Generate voice audio from text
+ */
+export const useGenerateVoice = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof generateVoice>>,
+    TError,
+    { data: BodyType<GenerateVoiceBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof generateVoice>>,
+  TError,
+  { data: BodyType<GenerateVoiceBody> },
+  TContext
+> => {
+  return useMutation(getGenerateVoiceMutationOptions(options));
+};

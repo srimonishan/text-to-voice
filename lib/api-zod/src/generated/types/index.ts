@@ -6,4 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from "./contentMode";
+export * from "./errorResponse";
+export * from "./generateVoiceBody";
 export * from "./healthStatus";
+export * from "./voice";

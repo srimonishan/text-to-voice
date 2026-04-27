@@ -25,3 +25,15 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - `pnpm --filter @workspace/api-server run dev` — run API server locally
 
 See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.
+
+## Artifacts
+
+- `artifacts/api-server` — Shared Express API server (port 8080). Routes registered in `src/routes/index.ts`.
+- `artifacts/voiceforge` — VoiceForge AI: dark-themed, single-page React + Vite SaaS at `/` that turns text into studio-quality voice via ElevenLabs Text-to-Speech. Stateless, no DB. Custom binary fetch hook (`useGenerateVoiceAudio`) downloads MP3 blob; voice list comes from `useListVoices` (curated 6-voice set served by the backend).
+- `artifacts/mockup-sandbox` — Component preview sandbox.
+
+## Backend ↔ ElevenLabs
+
+- Secret: `ELEVENLABS_API_KEY`.
+- `GET /api/voices` returns a curated list of 6 ElevenLabs library voices.
+- `POST /api/generate-voice` validates the request with Zod, applies an in-tone wrapper (`motivational`, `storytelling`, `educational`, or `plain`), calls `eleven_multilingual_v2`, and streams back `audio/mpeg`. Upstream ElevenLabs error messages are passed through to the client (e.g. free-plan limitations).

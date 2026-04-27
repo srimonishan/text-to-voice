@@ -5,24 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-export interface HealthStatus {
-  status: string;
-}
-
-export interface Voice {
-  id: string;
-  name: string;
-  description: string;
-}
-
-export type ContentMode = (typeof ContentMode)[keyof typeof ContentMode];
-
-export const ContentMode = {
-  motivational: "motivational",
-  storytelling: "storytelling",
-  educational: "educational",
-  plain: "plain",
-} as const;
+import type { ContentMode } from "./contentMode";
 
 export interface GenerateVoiceBody {
   /**
@@ -43,8 +26,4 @@ export interface GenerateVoiceBody {
    */
   similarityBoost: number;
   mode: ContentMode;
-}
-
-export interface ErrorResponse {
-  error: string;
 }

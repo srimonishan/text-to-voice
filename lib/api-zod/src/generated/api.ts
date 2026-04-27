@@ -14,3 +14,40 @@ import * as zod from "zod";
 export const HealthCheckResponse = zod.object({
   status: zod.string(),
 });
+
+/**
+ * Returns the list of available ElevenLabs voices the app supports.
+ * @summary List available voices
+ */
+export const ListVoicesResponseItem = zod.object({
+  id: zod.string(),
+  name: zod.string(),
+  description: zod.string(),
+});
+export const ListVoicesResponse = zod.array(ListVoicesResponseItem);
+
+/**
+ * Sends text to ElevenLabs and returns an MP3 audio buffer.
+ * @summary Generate voice audio from text
+ */
+export const generateVoiceBodyTextMax = 5000;
+
+export const generateVoiceBodyStabilityMin = 0;
+export const generateVoiceBodyStabilityMax = 1;
+
+export const generateVoiceBodySimilarityBoostMin = 0;
+export const generateVoiceBodySimilarityBoostMax = 1;
+
+export const GenerateVoiceBody = zod.object({
+  text: zod.string().min(1).max(generateVoiceBodyTextMax),
+  voiceId: zod.string().min(1),
+  stability: zod
+    .number()
+    .min(generateVoiceBodyStabilityMin)
+    .max(generateVoiceBodyStabilityMax),
+  similarityBoost: zod
+    .number()
+    .min(generateVoiceBodySimilarityBoostMin)
+    .max(generateVoiceBodySimilarityBoostMax),
+  mode: zod.enum(["motivational", "storytelling", "educational", "plain"]),
+});

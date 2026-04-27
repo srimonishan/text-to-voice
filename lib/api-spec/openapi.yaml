@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: voice
+    description: Voice generation operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,53 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /voices:
+    get:
+      operationId: listVoices
+      tags: [voice]
+      summary: List available voices
+      description: Returns the list of available ElevenLabs voices the app supports.
+      responses:
+        "200":
+          description: Voice catalog
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Voice"
+  /generate-voice:
+    post:
+      operationId: generateVoice
+      tags: [voice]
+      summary: Generate voice audio from text
+      description: Sends text to ElevenLabs and returns an MP3 audio buffer.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateVoiceBody"
+      responses:
+        "200":
+          description: Generated MP3 audio
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: Upstream provider error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +82,56 @@ components:
           type: string
       required:
         - status
-
+    Voice:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+      required:
+        - id
+        - name
+        - description
+    ContentMode:
+      type: string
+      enum:
+        - motivational
+        - storytelling
+        - educational
+        - plain
+    GenerateVoiceBody:
+      type: object
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 5000
+        voiceId:
+          type: string
+          minLength: 1
+        stability:
+          type: number
+          minimum: 0
+          maximum: 1
+        similarityBoost:
+          type: number
+          minimum: 0
+          maximum: 1
+        mode:
+          $ref: "#/components/schemas/ContentMode"
+      required:
+        - text
+        - voiceId
+        - stability
+        - similarityBoost
+        - mode
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
