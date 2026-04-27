@@ -9,14 +9,14 @@ const ELEVENLABS_BASE = "https://api.elevenlabs.io/v1";
 
 const VOICES: Voice[] = [
   {
-    id: "21m00Tcm4TlvDq8ikWAM",
-    name: "Rachel",
-    description: "Calm, narrative female voice — great for storytelling",
+    id: "FGY2WhTYpPnrIDTdsKH5",
+    name: "Laura",
+    description: "Soft, articulate female voice — great for storytelling",
   },
   {
-    id: "AZnzlk1XvdvUeBnXmlld",
-    name: "Domi",
-    description: "Strong, confident female voice — ideal for motivational talks",
+    id: "XrExE9yKIg1WjnnlVkGX",
+    name: "Matilda",
+    description: "Upbeat, confident female voice — ideal for motivational talks",
   },
   {
     id: "EXAVITQu4vr4xnSDxMaL",
