@@ -1,4 +1,6 @@
 import { Router, type IRouter } from "express";
+import { Readable } from "node:stream";
+import { pipeline } from "node:stream/promises";
 import { GenerateVoiceBody, type Voice } from "@workspace/api-zod";
 
 const router: IRouter = Router();
@@ -131,13 +133,31 @@ router.post("/generate-voice", async (req, res): Promise<void> => {
     return;
   }
 
-  const arrayBuffer = await upstream.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
+  if (!upstream.body) {
+    req.log.error("ElevenLabs response had no body to stream");
+    res.status(502).json({ error: "Voice provider returned an empty response." });
+    return;
+  }
 
   res.setHeader("Content-Type", "audio/mpeg");
-  res.setHeader("Content-Length", String(buffer.length));
   res.setHeader("Cache-Control", "no-store");
-  res.send(buffer);
+  const upstreamLength = upstream.headers.get("content-length");
+  if (upstreamLength) {
+    res.setHeader("Content-Length", upstreamLength);
+  }
+
+  const nodeStream = Readable.fromWeb(upstream.body as Parameters<typeof Readable.fromWeb>[0]);
+
+  try {
+    await pipeline(nodeStream, res);
+  } catch (err) {
+    req.log.error({ err }, "Error while streaming audio from ElevenLabs");
+    if (!res.headersSent) {
+      res.status(502).json({ error: "Failed while streaming audio from voice provider." });
+    } else if (!res.writableEnded) {
+      res.destroy(err as Error);
+    }
+  }
 });
 
 export default router;
