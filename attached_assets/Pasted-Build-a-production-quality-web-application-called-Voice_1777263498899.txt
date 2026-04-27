@@ -1,0 +1,103 @@
+Build a production-quality web application called “VoiceForge AI” using Node.js (Express) for the backend and vanilla HTML, CSS, and JavaScript for the frontend (no frameworks required).
+
+The application must integrate the ElevenLabs Text-to-Speech API to convert user input text into high-quality voice output in real time.
+
+CORE CONSTRAINTS:
+- No database (no Supabase, Firebase, MongoDB, or any storage)
+- Stateless architecture only
+- Fully functional end-to-end
+- Clean, modern, minimal UI
+- Ready to run in Replit without modification
+
+FEATURES:
+
+1. TEXT INPUT
+- Large textarea for user input
+- Character counter
+- Placeholder text guiding usage
+
+2. VOICE SETTINGS
+- Dropdown with at least 3 predefined ElevenLabs voice IDs
+- Sliders for:
+  - Stability (0–1)
+  - Similarity Boost (0–1)
+
+3. CONTENT MODE SELECTOR
+- Buttons:
+  - Motivational
+  - Storytelling
+  - Educational
+- Each mode slightly modifies tone of text before sending to API
+
+4. GENERATE VOICE
+- Button triggers API call
+- Disable button during processing
+- Show loading spinner
+
+5. AUDIO OUTPUT
+- Built-in audio player
+- Play / Pause controls
+- Download MP3 button
+
+BACKEND REQUIREMENTS (Node.js + Express):
+
+- Create POST endpoint: /generate-voice
+
+- Call ElevenLabs API:
+  https://api.elevenlabs.io/v1/text-to-speech/{voice_id}
+
+- Headers:
+  xi-api-key: process.env.ELEVENLABS_API_KEY
+  Content-Type: application/json
+
+- Request body:
+{
+  "text": "<processed_text>",
+  "voice_settings": {
+    "stability": <value>,
+    "similarity_boost": <value>
+  }
+}
+
+- Return:
+  Audio buffer (MP3) directly to frontend
+
+FRONTEND REQUIREMENTS:
+
+- Single-page application
+- Dark theme UI
+- Gradient accents and modern styling
+- Responsive design (mobile + desktop)
+- Smooth transitions and good UX
+
+FILE STRUCTURE:
+
+/server.js
+/public/index.html
+/public/style.css
+/public/script.js
+/.env
+
+ENVIRONMENT:
+
+- Use .env file:
+  ELEVENLABS_API_KEY=sk_c043dff4f837f9325ca1f323aee26a65ed37c4a762a44373
+- Ensure server reads environment variables properly
+
+EXTRA POLISH (IMPORTANT):
+
+- Add header: “Powered by ElevenLabs AI Voice”
+- Add tagline: “Transform text into studio-quality voice instantly”
+- Clean spacing, typography, and alignment
+- User-friendly layout
+
+OUTPUT REQUIREMENTS:
+
+- Provide complete working code for all files
+- No placeholders or pseudo-code
+- Fully integrated with ElevenLabs API
+- Include instructions to run in Replit
+
+GOAL:
+
+The final product must feel like a real AI SaaS demo, not a beginner project. It should clearly demonstrate how ElevenLabs can be used for content creation, storytelling, and educational voice generation.
