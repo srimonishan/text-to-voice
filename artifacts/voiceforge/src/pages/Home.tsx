@@ -101,7 +101,7 @@ export function Home() {
             <span className="font-display font-bold text-lg tracking-tight">VoiceForge AI</span>
           </div>
           <div className="text-xs font-medium text-muted-foreground bg-secondary/50 px-3 py-1.5 rounded-full border border-border/50">
-            Powered by ElevenLabs
+            Powered by ElevenLabs AI Voice
           </div>
         </div>
       </header>
